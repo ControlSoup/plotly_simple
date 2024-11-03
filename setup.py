@@ -1,11 +1,15 @@
-from setuptools import setup
+from setuptools import find_packages, setup
 
 # Auto generate install reqs
+
 with open("requirements.txt", "r") as f:
-    REQ_LINES = [ i+"," for i in list(f.readlines())]
+    REQ_LINES = list(f.readlines())
+
+for i in REQ_LINES:
+    i += ","
 
 setup(
-    name="plotly_simple",
+    name="plotly_datadict",
     version="0.0.1",
     url="",
     author="Some Joe",
