@@ -20,15 +20,15 @@ def graph_by_key(
         fig = go.Figure()
 
     yaxis = None
-    if (5 > yaxis_num > 1):
-        yaxis = f'y{yaxis_num}'
-    elif (yaxis == 1):
-        yaxis = None
+    if 1 <= yaxis_num <= 4:
+        yaxis = f'y{yaxis_num}' if yaxis_num > 1 else None
     else:
         raise ValueError(
-            f"Cannont set axis number [{yaxis_num}] use 1,2,3 or 4"
+            f"Cannot set axis number [{yaxis_num}]; use 1, 2, 3, or 4"
         )
 
+
+    print(yaxis)
     for y_key in key_list:
         fig.add_trace(
             go.Scatter(
@@ -37,7 +37,7 @@ def graph_by_key(
                 name=y_key,
                 yaxis=yaxis,
                 mode="lines",
-                color = color
+                fill = color
             )
         )
 
@@ -46,14 +46,15 @@ def graph_by_key(
         xaxis_title=x_key
     )
 
-    if yaxis_num == 1:
-        fig.update_layout(yaxis = dict(text = yaxis_title))
-    elif yaxis_num == 2:
-        fig.update_layout(yaxis2 = dict(text = yaxis_title))
-    elif yaxis_num == 3:
-        fig.update_layout(yaxis3 = dict(text = yaxis_title))
-    elif yaxis_num == 3:
-        fig.update_layout(yaxis3 = dict(text = yaxis_title))
+    yaxis_str = f'yaxis{yaxis_num}' if yaxis_num > 1 else 'yaxis'
+    fig.update_layout({
+        yaxis_str: dict(
+            title=dict(text=yaxis_title),
+            anchor="x" if yaxis_num == 1 else "free",
+            overlaying="y" if yaxis_num > 1 else None,
+            side="left" if yaxis_num % 2 != 0 else "right",
+        )
+    })
         
 
     if log_x:
