@@ -1,0 +1,13 @@
+data: 
+  example.tar.gz:set-1: {type: path}
+  example.tar.gz:set-2': {type: path}
+  set-3.csv: {type: path}
+
+
+
+plots:
+  "Example ?":
+    type: Line
+    y0: 
+      'a [lbf]': {}
+    x0: 'time [s]'

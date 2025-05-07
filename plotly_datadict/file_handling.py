@@ -14,12 +14,12 @@ def datadict_to_csv(datadict: dict[str, np.array], file_path: str, compression: 
     df.to_csv(file_path, index=False, compression = compression)
 
 
-def csv_to_datadict(file_path: str, compression: str = None) -> dict[str, np.array]:
+def csv_to_datadict(file_path: str, compression: str = None, subsample: int = 1) -> dict[str, np.array]:
     df = pd.read_csv(file_path, compression = compression)
 
     dict = {}
     for key in df:
-        dict[key] = df[key].to_numpy()
+        dict[key] = df[key].to_numpy()[::subsample]
 
     return dict
 
