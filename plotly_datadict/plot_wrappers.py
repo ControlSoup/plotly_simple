@@ -1,99 +1,123 @@
-import numpy as np
+import polars as pl
 import plotly.graph_objects as go
 
-
-def graph_by_key(
-    datadict: str,
-    key_list: list[str],
-    x_key: str,
-    title: str = "",
-    yaxis_num: int = 1,
-    yaxis_title: str = "",
-    show_fig: bool = False,
-    export_path: bool = None,
+def graph_scatter_by_key(
+    df: pl.DataFrame,
+    x: str,
+    y: str,
+    x_title = None,
+    y_title = '',
+    title = '',
+    color = None,
+    mode = 'lines',
+    group_name: str = None,
+    options: dict = {},
     fig: go.Figure = None,
-    log_x: bool =False,
-    color: str  = None,
-) -> go.Figure:
+    axis = 1,
+    theme = 'plotly_dark'
+):
 
-    if fig == None:
+    # TODO use datafarme interface instead of grabbing data and copying?
+
+    if x_title is None:
+        x_title = x
+
+    if fig is None:
         fig = go.Figure()
 
-    yaxis = None
-    if 1 <= yaxis_num <= 4:
-        yaxis = f'y{yaxis_num}' if yaxis_num > 1 else None
-    else:
-        raise ValueError(
-            f"Cannot set axis number [{yaxis_num}]; use 1, 2, 3, or 4"
+    y_axis_info = dict(
+        title=dict(text=y_title),
+        anchor="free",
+        overlaying="y",
+        autoshift=True,
+        side="left"
+    )
+
+    if color is not None:
+        y_axis_info['color'] = color
+
+    data = dict(
+        x = df[x],
+        y = df[y],
+        name = y,
+        mode = mode,
+        legendgroup = group_name,
+        legendgrouptitle_text = group_name,
+        **options
+    )
+
+    if axis == 1:
+        fig.add_trace(go.Scatter(
+            **data
+        ))
+        fig.update_layout(yaxis=dict(title=dict(text=y_title)))
+    elif axis == 2:
+        fig.add_trace(go.Scatter(
+            yaxis='y2',
+            **data
+        ))
+        fig.update_layout(
+            yaxis2=y_axis_info,
         )
-
-
-    print(yaxis)
-    for y_key in key_list:
-        fig.add_trace(
-            go.Scatter(
-                x=datadict[x_key],
-                y=datadict[y_key],
-                name=y_key,
-                yaxis=yaxis,
-                mode="lines",
-                fill = color
-            )
+    elif axis == 3:
+        fig.add_trace(go.Scatter(
+            yaxis='y3',
+            **data
+        ))
+        fig.update_layout(
+            yaxis3=y_axis_info,
+        )
+    elif axis == 4:
+        fig.add_trace(go.Scatter(
+            yaxis='y4',
+            **data
+        ))
+        fig.update_layout(
+            yaxis4=y_axis_info,
         )
 
     fig.update_layout(
-        title=title, 
-        xaxis_title=x_key
+        title = title,
+        template = theme,
+        showlegend = True
     )
-
-    yaxis_str = f'yaxis{yaxis_num}' if yaxis_num > 1 else 'yaxis'
-    fig.update_layout({
-        yaxis_str: dict(
-            title=dict(text=yaxis_title),
-            anchor="x" if yaxis_num == 1 else "free",
-            overlaying="y" if yaxis_num > 1 else None,
-            side="left" if yaxis_num % 2 != 0 else "right",
-        )
-    })
-        
-
-    if log_x:
-        fig.update_layout(_xaxis_type="log")
-
-    if show_fig:
-        fig.show()
-
-    if export_path:
-        fig.write_html(export_path)
 
     return fig
 
-
-def graph_datadict(
-    datadict: str,
-    x_key: str,
-    title: str = "",
-    yaxis_num: int = 1,
-    yaxis_title: str = "",
-    show_fig: bool = False,
-    export_path: bool = None,
+def graph_scatter_all(
+    df: pl.DataFrame,
+    x: str,
+    x_title = None,
+    y_title = '',
+    title = '',
+    mode = 'lines',
+    options: dict = {},
     fig: go.Figure = None,
-    log_x: bool =False,
-    color: str  = None,
-) -> go.Figure:
-    key_list = [key for key in datadict if key != x_key]
+    theme = 'plotly_dark'
+):
+    if fig is None:
+        fig = go.Figure()
 
-    return graph_by_key(
-        datadict = datadict,
-        x_key = x_key,
-        key_list=key_list,
-        title = title,
-        yaxis_num = yaxis_num,
-        yaxis_title = yaxis_title,
-        show_fig = show_fig,
-        export_path = export_path,
-        fig = fig,
-        log_x = log_x,
-        color = color,
-    )
+    for key in df:
+        graph_scatter_by_key(
+            df,
+            x = x,
+            y = key.name,
+            x_title = x_title, 
+            y_title = y_title,
+            title = title,
+            mode = mode,
+            options = options,
+            fig = fig,
+            theme = theme
+        )
 
+    return fig
+
+df = pl.read_csv("examples/set-1.csv")
+
+fig = graph_scatter_by_key(df, 'time [s]', 'a [lbf]')
+fig = graph_scatter_by_key(df, 'time [s]', 'b [degF]', axis=2, fig = fig)
+fig = graph_scatter_by_key(df, 'time [s]', 'a [lbf]', axis = 3, fig = fig)
+fig = graph_scatter_by_key(df, 'time [s]', 'a [lbf]', axis = 4, fig = fig)
+fig.show()

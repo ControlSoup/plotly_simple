@@ -8,6 +8,6 @@ data:
 plots:
   "Example ?":
     type: Line
-    y0: 
+    y1: 
       'a [lbf]': {}
-    x0: 'time [s]'
+    x1: 'time [s]'
