@@ -33,7 +33,6 @@ def add_entries(tarpath: str, *files) -> None:
                 continue 
 
             member_name = os.path.basename(file).rstrip(".csv")
-
             if member_name in members:
                 warning(f"File [{file}] would be a duplicate of exisiting entry [{member_name}] use delete_entry or pick a new memeber name")
                 continue

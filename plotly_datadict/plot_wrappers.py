@@ -14,7 +14,8 @@ def graph_scatter_by_key(
     options: dict = {},
     fig: go.Figure = None,
     axis = 1,
-    theme = 'plotly_dark'
+    theme = 'plotly_dark',
+    alt_y_name = None,
 ):
 
     # TODO use datafarme interface instead of grabbing data and copying?
@@ -24,6 +25,9 @@ def graph_scatter_by_key(
 
     if fig is None:
         fig = go.Figure()
+    
+    if alt_y_name is None:
+        alt_y_name = y
 
     y_axis_info = dict(
         title=dict(text=y_title),
@@ -39,12 +43,21 @@ def graph_scatter_by_key(
     data = dict(
         x = df[x],
         y = df[y],
-        name = y,
+        name = alt_y_name,
         mode = mode,
         legendgroup = group_name,
         legendgrouptitle_text = group_name,
         **options
     )
+
+    if mode == 'lines':
+        data['line'] = dict(color = color)
+    elif mode == 'markers':
+        data['marker'] = dict(color = color)
+    elif mode == 'lines+markers':
+        data['line'] = dict(color = color)
+        data['marker'] = dict(color = color)
+    
 
     if axis == 1:
         fig.add_trace(go.Scatter(
@@ -113,11 +126,3 @@ def graph_scatter_all(
         )
 
     return fig
-
-df = pl.read_csv("examples/set-1.csv")
-
-fig = graph_scatter_by_key(df, 'time [s]', 'a [lbf]')
-fig = graph_scatter_by_key(df, 'time [s]', 'b [degF]', axis=2, fig = fig)
-fig = graph_scatter_by_key(df, 'time [s]', 'a [lbf]', axis = 3, fig = fig)
-fig = graph_scatter_by_key(df, 'time [s]', 'a [lbf]', axis = 4, fig = fig)
-fig.show()

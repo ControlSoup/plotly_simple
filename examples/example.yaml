@@ -1,13 +1,20 @@
 data: 
-  example.tar.gz:set-1: {type: path}
-  example.tar.gz:set-2': {type: path}
-  set-3.csv: {type: path}
-
-
+  examples/example.tar.gz:set-3: 
+    type: path
+    alt_color: 2
+  examples/example.tar.gz:set-2: 
+    type: path
+  examples/set-1.csv: 
+    type: path
 
 plots:
   "Example ?":
-    type: Line
+    type: lines+markers
     y1: 
-      'a [lbf]': {}
-    x1: 'time [s]'
+      - 'a [lbf]': {alt_color_2: 'purple'}
+    x: 'time [s]'
+  "Example2?":
+    type: lines+markers
+    y1: 
+      - 'b [degF]'
+    x: 'time [s]'
