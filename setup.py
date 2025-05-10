@@ -9,11 +9,11 @@ for i in REQ_LINES:
     i += ","
 
 setup(
-    name="plotly_datadict",
+    name="plotly_simple",
     version="0.0.1",
     url="",
     author="Some Joe",
     author_email="joe.burge.iii@gmail.com",
-    description="Thrust Modeling",
+    description="Collectino of dataframe and plot helper functions",
     install_requires=REQ_LINES,
 )

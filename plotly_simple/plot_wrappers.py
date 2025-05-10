@@ -1,8 +1,9 @@
-import pandas as pd
 import polars as pl
 import plotly.graph_objects as go
 from copy import deepcopy
 import re
+
+# Exposing it so anything that uses eval can convert
 from .units import convert
 
 def parse_keys(full_str: str, ):
