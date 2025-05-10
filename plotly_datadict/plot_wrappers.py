@@ -1,5 +1,22 @@
+import pandas as pd
 import polars as pl
 import plotly.graph_objects as go
+from copy import deepcopy
+import re
+from .units import convert
+
+def parse_keys(full_str: str, ):
+
+    if ('{' and '}' not in full_str):
+        return full_str
+
+    keys =  re.findall(r"\{(.*?)\}", full_str)
+    new_str = deepcopy(full_str)
+    for key in keys:
+        new_str = new_str.replace('{' + key + '}', f'pl.col("{key}")')
+    
+    return 'df.with_columns([( + ' + new_str + ').alias("' + full_str +'")])'
+
 
 def graph_scatter_by_key(
     df: pl.DataFrame,
@@ -17,8 +34,6 @@ def graph_scatter_by_key(
     theme = 'plotly_dark',
     alt_y_name = None,
 ):
-
-    # TODO use datafarme interface instead of grabbing data and copying?
 
     if x_title is None:
         x_title = x
@@ -40,9 +55,14 @@ def graph_scatter_by_key(
     if color is not None:
         y_axis_info['color'] = color
 
+    if y not in df:
+        df_evaluated = eval(parse_keys(y))
+    else:
+        df_evaluated = df 
+
     data = dict(
-        x = df[x],
-        y = df[y],
+        x = df_evaluated[x],
+        y = df_evaluated[y],
         name = alt_y_name,
         mode = mode,
         legendgroup = group_name,
@@ -57,7 +77,6 @@ def graph_scatter_by_key(
     elif mode == 'lines+markers':
         data['line'] = dict(color = color)
         data['marker'] = dict(color = color)
-    
 
     if axis == 1:
         fig.add_trace(go.Scatter(
@@ -89,40 +108,12 @@ def graph_scatter_by_key(
             yaxis4=y_axis_info,
         )
 
+    fig.update_xaxes(title = x_title)
     fig.update_layout(
         title = title,
         template = theme,
-        showlegend = True
+        showlegend = True,
+        hovermode='x unified',
     )
-
-    return fig
-
-def graph_scatter_all(
-    df: pl.DataFrame,
-    x: str,
-    x_title = None,
-    y_title = '',
-    title = '',
-    mode = 'lines',
-    options: dict = {},
-    fig: go.Figure = None,
-    theme = 'plotly_dark'
-):
-    if fig is None:
-        fig = go.Figure()
-
-    for key in df:
-        graph_scatter_by_key(
-            df,
-            x = x,
-            y = key.name,
-            x_title = x_title, 
-            y_title = y_title,
-            title = title,
-            mode = mode,
-            options = options,
-            fig = fig,
-            theme = theme
-        )
 
     return fig

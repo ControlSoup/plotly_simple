@@ -4,17 +4,23 @@ data:
     alt_color: 2
   examples/example.tar.gz:set-2: 
     type: path
+    alt_color: 2
   examples/set-1.csv: 
     type: path
+
 
 plots:
   "Example ?":
     type: lines+markers
     y1: 
-      - 'a [lbf]': {alt_color_2: 'purple'}
+      - 'a [lbf]': {alt_color_2: 'lightgray'}
+    y2:
+      - '{a [lbf]} + 10': {alt_color_2: 'purple'}
     x: 'time [s]'
+    toggle_group: False
   "Example2?":
     type: lines+markers
     y1: 
       - 'b [degF]'
     x: 'time [s]'
+  export: 'examples/examples.html'
